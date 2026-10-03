@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Keepsake – Digital File Storage Optimizer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f2f4f7;--card:#fff;--ink:#101a2e;--mut:#5d6a82;--line:#dde2ea;--acc:#ff5a1f;--accink:#fff;--ok:#1f8f4e;--bad:#d1382f;--free:#e6e9ef;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0b1220;--card:#131c2f;--ink:#e9eef7;--mut:#8f9db5;--line:#25314a;--free:#1d283f}}
+:root[data-theme=dark]{--bg:#0b1220;--card:#131c2f;--ink:#e9eef7;--mut:#8f9db5;--line:#25314a;--free:#1d283f}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Source Sans 3",system-ui,sans-serif}
+h1,h2,h3,.brand{font-family:"Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.02em;margin:0}
+header{display:flex;align-items:center;gap:24px;padding:14px 28px;border-bottom:1px solid var(--line);background:var(--card);flex-wrap:wrap}
+.brand{font-size:22px;font-weight:700}.brand b{color:var(--acc)}
+nav{display:flex;gap:4px;flex-wrap:wrap}nav button{background:none;border:0;padding:8px 14px;border-radius:20px;color:var(--mut);font-weight:600;font-size:15px;font-family:inherit;cursor:pointer}
+nav button.on{background:var(--ink);color:var(--bg)}
+main{max-width:1180px;margin:auto;padding:28px}
+section{display:none}section.on{display:block}
+.hero h1{font-size:clamp(28px,5vw,46px);line-height:1.08;max-width:15ch}.hero p{color:var(--mut);max-width:60ch;margin:10px 0 20px}
+.ctl{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:22px}
+label{display:flex;flex-direction:column;font-size:13px;color:var(--mut);gap:4px}
+input,select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;max-width:100%}
+.btn{background:var(--acc);color:var(--accink);border:0;padding:11px 20px;border-radius:8px;font-weight:600;font-size:16px;font-family:inherit;cursor:pointer}
+.btn.s{background:none;color:var(--ink);border:1px solid var(--line);padding:8px 14px;font-size:14px}.btn:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.drive{display:flex;height:64px;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(135deg,var(--free) 0 8px,transparent 8px 16px),var(--free);border:2px solid var(--ink)}
+.drive i{display:block;height:100%;border-right:1px solid var(--bg);min-width:2px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:10px 0 18px;font-size:13px;color:var(--mut)}.legend span:before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--c);margin-right:6px}
+.stats{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:24px}
+.stats div{flex:1 1 140px;padding:14px 16px;border-right:1px solid var(--line)}.stats div:last-child{border:0}
+.stats small{color:var(--mut);display:block;font-size:13px}.stats b{font:700 24px "Bricolage Grotesque",sans-serif}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:20px}
+.card h3{font-size:18px;margin-bottom:10px}.tw{overflow-x:auto;max-height:420px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mut);font-weight:600;position:sticky;top:0;background:var(--card)}
+td input,td select{padding:4px 6px;font-size:14px}td input{width:64px}
+.tag{padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;color:#fff}.Selected{background:var(--ok)}.Rejected{background:var(--bad)}.Pending{background:var(--mut)}
+.drop{border:2px dashed var(--mut);border-radius:14px;padding:30px;text-align:center;margin-bottom:20px;background:var(--card)}
+.drop.over{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--card))}.drop h2{font-size:22px}.drop p{color:var(--mut);margin:6px 0 14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}.msg{color:var(--mut);font-size:14px;min-height:20px;margin:8px 0}.msg.e{color:var(--bad)}
+.x{background:none;border:0;color:var(--bad);cursor:pointer;font-size:18px}
+.empty{padding:26px;text-align:center;color:var(--mut)}.cv{height:300px}
+@media(max-width:640px){main{padding:16px}header{padding:12px 16px}}
+</style></head><body>
+<header><div class="brand">Keep<b>sake</b></div>
+<nav><button data-v="drive" class="on">Drive</button><button data-v="files">My files</button><button data-v="cmp">Compare</button><button data-v="wif">What-if</button><button data-v="his">History</button></nav></header>
+<main>
+<section id="drive" class="on"><div class="hero"><h1>Fit the files that matter onto your drive.</h1>
+<p>Add your own files, set how much room you have, and the optimizer picks the combination with the highest total importance that still fits.</p></div>
+<div class="ctl">
+<label>Available storage<input id="cap" type="number" min="0" step="any" value="50" style="width:110px"></label>
+<label>Unit<select id="cu"><option>KB<option>MB<option selected>GB<option>TB</select></label>
+<label>Algorithm<select id="alg"><option value="dp">Dynamic Programming (optimal)<option value="greedy">Greedy<option value="bf">Brute Force</select></label>
+<label>Mode<select id="mode"><option value="max">Maximum utility (standard)<option value="eff">Maximum storage efficiency<option value="imp">Important files first<option value="bal">Balanced</select></label>
+<button class="btn" id="run">Optimize storage</button><button class="btn s" id="half">Set to 50% of my files</button></div>
+<div class="msg" id="oerr"></div>
+<div class="drive" id="drv"></div><div class="legend" id="lg"></div>
+<div class="stats" id="st"></div>
+<div class="cols"><div class="card"><h3>Keep</h3><div class="tw" id="keep"></div></div><div class="card"><h3>Leave out</h3><div class="tw" id="leave"></div></div></div>
+<div class="card"><h3>What the drive holds, by category</h3><div class="cv"><canvas id="c1"></canvas></div></div></section>
+
+<section id="files"><h2 style="font-size:30px;margin-bottom:14px">My files</h2>
+<div class="drop" id="dz"><h2>Drop files or folders here</h2><p>They are read in your browser only. Nothing is uploaded. Size and file type come from the file itself; utility is a suggestion you can edit.</p>
+<div class="row" style="justify-content:center"><button class="btn" id="pf">Choose files</button><button class="btn s" id="pd">Choose folder</button><button class="btn s" id="pc">Import CSV</button><button class="btn s" id="sm">Load sample</button></div>
+<input type="file" id="fi" multiple hidden><input type="file" id="di" webkitdirectory hidden><input type="file" id="ci" accept=".csv" hidden></div>
+<div class="card"><h3>Add one manually</h3><div class="row">
+<label>Name<input id="mn"></label><label>Size<input id="ms" type="number" step="any" min="0" style="width:90px"></label>
+<label>Unit<select id="mu"><option>KB<option>MB<option selected>GB<option>TB</select></label>
+<label>Utility (1-100)<input id="mv" type="number" min="1" max="100" style="width:90px"></label>
+<label>Category<select id="mc"></select></label><button class="btn s" id="ma">Add file</button></div></div>
+<div class="msg" id="fm"></div>
+<div class="card"><div class="row" style="margin-bottom:12px">
+<label>Search<input id="q" placeholder="file name"></label><label>Category<select id="qc"></select></label>
+<label>Status<select id="qs"><option value="">All<option>Selected<option>Rejected<option>Pending</select></label>
+<label>Sort by<select id="so"><option value="name">Name<option value="size">Size<option value="util">Utility<option value="ratio">Utility / size</select></label>
+<button class="btn s" id="e1">Export all</button><button class="btn s" id="e2">Selected</button><button class="btn s" id="e3">Rejected</button><button class="btn s" id="ca">Remove all</button></div>
+<div class="tw" style="max-height:560px"><table><thead><tr><th>File<th>Type<th>Size<th>Utility<th>Ratio<th>Category<th>Status<th></tr></thead><tbody id="tb"></tbody></table></div><div class="msg" id="cnt"></div></div></section>
+
+<section id="cmp"><h2 style="font-size:30px;margin-bottom:14px">Compare algorithms</h2><div class="card">
+<div class="row"><button class="btn" id="cr">Run all three on my files</button><button class="btn s" id="bench">Run scaling benchmark</button><button class="btn s" id="e4">Export results</button></div>
+<div class="tw" style="margin-top:14px"><table><thead><tr><th>Algorithm<th>Utility<th>Storage used<th>Time (ms)<th>Time complexity<th>Space</tr></thead><tbody id="ctb"></tbody></table></div>
+<p class="msg">Dynamic Programming is optimal for the standard 0/1 knapsack. Greedy (best utility per byte first) can fall short. Brute Force is also optimal but takes O(2ⁿ) time, so it only runs on up to 24 files. Times are measured live.</p></div>
+<div class="card"><div class="cv"><canvas id="c2"></canvas></div></div></section>
+
+<section id="wif"><h2 style="font-size:30px;margin-bottom:14px">What-if capacity</h2><div class="card">
+<label>Capacity: <b id="wv"></b><input type="range" id="ws" min="5" max="150" value="50"></label>
+<label style="max-width:280px;margin-top:10px">Algorithm<select id="wa"><option value="dp">Dynamic Programming<option value="greedy">Greedy<option value="bf">Brute Force</select></label>
+<div class="drive" id="wd" style="margin-top:16px"></div><div class="stats" id="wst" style="margin-top:16px"></div></div></section>
+
+<section id="his"><h2 style="font-size:30px;margin-bottom:14px">History</h2><div class="card"><button class="btn s" id="hc">Clear history</button>
+<div class="tw" style="margin-top:12px"><table><thead><tr><th>Date<th>Capacity<th>Files<th>Algorithm<th>Utility<th>Used<th>Remaining<th>Time (ms)</tr></thead><tbody id="hb"></tbody></table></div></div></section>
+</main>
+<script>
+const $=i=>document.getElementById(i),U={KB:1024,MB:1048576,GB:1073741824,TB:1099511627776};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=b=>b>=U.TB?(b/U.TB).toFixed(2)+' TB':b>=U.GB?(b/U.GB).toFixed(2)+' GB':b>=U.MB?(b/U.MB).toFixed(1)+' MB':(b/1024).toFixed(1)+' KB';
+const CATS=['Documents','Images','Videos','Audio','Archives','Applications','College','Work','Personal','Important','Other'];
+const COL={Documents:'#3b6fd8',Images:'#e0a100',Videos:'#c4318c',Audio:'#7a4fd6',Archives:'#0f9d9a',Applications:'#e5602a',College:'#2d9d4f',Work:'#5d6a82',Personal:'#d1382f',Important:'#101a2e',Other:'#9aa5b8'};
+const EXT={Documents:'pdf doc docx txt xls xlsx ppt pptx md csv rtf odt',Images:'jpg jpeg png gif webp svg heic raw bmp',Videos:'mp4 mkv mov avi webm',Audio:'mp3 wav flac m4a aac ogg',Archives:'zip rar 7z tar gz iso',Applications:'exe msi apk dmg pkg deb'};
+const BASE={Documents:80,Images:55,Videos:35,Audio:35,Archives:50,Applications:45,College:75,Work:80,Personal:65,Important:95,Other:40};
+const NAMES={dp:'Dynamic Programming',greedy:'Greedy',bf:'Brute Force'},CX={dp:['O(n × C)','O(n × C)'],greedy:['O(n log n)','O(n)'],bf:['O(2ⁿ)','O(n)']};
+let files=[],hist=[],res=null,cmp=[],nid=1,charts={};
+const clamp=v=>Math.max(1,Math.min(100,Math.round(v)));
+const catOf=n=>{const e=(n.split('.').pop()||'').toLowerCase();return Object.keys(EXT).find(c=>EXT[c].split(' ').includes(e))||'Other'};
+function suggest(cat,mod){const age=(Date.now()-mod)/864e5;return clamp(BASE[cat]+(age<30?20:age<365?10:0))}
+function save(){try{localStorage.setItem('keepsake',JSON.stringify({files,hist,nid}))}catch(e){}}
+try{const d=JSON.parse(localStorage.getItem('keepsake')||'{}');files=d.files||[];hist=d.hist||[];nid=d.nid||1}catch(e){}
+
+/* algorithms (sizes in bytes) */
+const VAL=mx=>({max:f=>f.util,eff:f=>f.size,imp:f=>f.util**2,bal:f=>f.util+100*f.size/mx});
+function dp(a,C,v){const n=a.length,K=Math.min(100000,Math.floor(4e7/Math.max(n,1))),s=2**Math.max(0,Math.ceil(Math.log2(C/K))),w=a.map(f=>Math.ceil(f.size/s)),c0=Math.floor(C/s),M=c0+1,keep=new Uint8Array(n*M),d=new Float64Array(M);
+ for(let i=0;i<n;i++){const vi=v(a[i]);for(let c=c0;c>=w[i];c--){const t=d[c-w[i]]+vi;if(t>d[c]){d[c]=t;keep[i*M+c]=1}}}
+ let c=c0,sel=[];for(let i=n-1;i>=0;i--)if(keep[i*M+c]){sel.push(a[i]);c-=w[i]}return sel}
+function greedy(a,C,v){let w=0,sel=[];[...a].sort((x,y)=>v(y)/y.size-v(x)/x.size).forEach(f=>{if(w+f.size<=C){w+=f.size;sel.push(f)}});return sel}
+function bf(a,C,v){let best=-1,bm=0,n=a.length;(function r(i,w,t,m){if(w>C)return;if(i==n){if(t>best){best=t;bm=m}return}r(i+1,w,t,m);r(i+1,w+a[i].size,t+v(a[i]),m|(1<<i))})(0,0,0,0);return a.filter((_,i)=>bm>>i&1)}
+function solve(alg,C,mode='max'){const v=VAL(Math.max(...files.map(f=>f.size)))[mode],t0=performance.now(),sel=({dp,greedy,bf})[alg](files,C,v),ms=performance.now()-t0;
+ return{alg,mode,sel:new Set(sel.map(f=>f.id)),util:sel.reduce((s,f)=>s+f.util,0),used:sel.reduce((s,f)=>s+f.size,0),ms,cap:C,n:files.length}}
+const can=alg=>{if(!files.length){$('oerr').textContent='Add some files first (My files tab).';return false}if(alg=='bf'&&files.length>24){$('oerr').textContent='Brute force is limited to 24 files. Use Dynamic Programming.';return false}return true};
+
+/* adding files */
+function addList(list){let n=0,dup=0;const seen=new Set(files.map(f=>f.name+f.size));
+ for(const f of list){if(!f.name||f.size<=0||seen.has(f.name+f.size)){dup++;continue}seen.add(f.name+f.size);const cat=catOf(f.name);
+  files.push({id:nid++,name:f.name,type:(f.name.split('.').pop()||'').toUpperCase().slice(0,6),size:f.size,util:suggest(cat,f.lastModified||0),cat});n++}
+ res=null;save();$('fm').className='msg';$('fm').textContent=`Added ${n} file(s).`+(dup?` Skipped ${dup} empty or duplicate.`:'');render()}
+async function walk(e,out){if(e.isFile)await new Promise(r=>e.file(f=>{out.push(f);r()},r));else{const rd=e.createReader();let b;do{b=await new Promise(r=>rd.readEntries(r,()=>r([])));for(const x of b)await walk(x,out)}while(b.length)}}
+const dz=$('dz');['dragenter','dragover'].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.add('over')}));
+['dragleave','drop'].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.remove('over')}));
+dz.addEventListener('drop',async e=>{const ent=[...e.dataTransfer.items].map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry()).filter(Boolean),out=[];
+ if(ent.length){for(const x of ent)await walk(x,out)}else out.push(...e.dataTransfer.files);addList(out)});
+$('pf').onclick=()=>$('fi').click();$('pd').onclick=()=>$('di').click();$('pc').onclick=()=>$('ci').click();
+$('fi').onchange=$('di').onchange=e=>{addList([...e.target.files]);e.target.value=''};
+$('ci').onchange=e=>{const r=new FileReader();r.onload=()=>{const bad=[];let n=0;r.result.trim().split(/\r?\n/).slice(1).forEach((l,i)=>{const c=l.split(',').map(x=>x.trim()),s=parseFloat(c[2]),u=parseInt(c[3]);
+  if(c.length<5||!c[0]||!(s>0)||!(u>=1&&u<=100)||!c[4]){bad.push(i+2);return}
+  files.push({id:nid++,name:c[0],type:c[1],size:s*U.GB,util:u,cat:CATS.includes(c[4])?c[4]:'Other'});n++});
+ res=null;save();$('fm').className='msg'+(bad.length?' e':'');$('fm').textContent=`Imported ${n}. `+(bad.length?`Invalid rows skipped: ${bad.join(', ')}. Size is in GB, utility 1-100.`:'');render()};r.readAsText(e.target.files[0]);e.target.value=''};
+$('sm').onclick=()=>addList([['Thesis.pdf',3e9,95],['Photos.zip',8e9,150],['Project.pdf',2.5e9,90],['Movie.mp4',4e9,40],['Notes.docx',1e9,85],['Backup.zip',2e10,70]].map(a=>({name:a[0],size:a[1],lastModified:Date.now()-a[2]*864e5})));
+$('ma').onclick=()=>{const n=$('mn').value.trim(),s=parseFloat($('ms').value)*U[$('mu').value],u=parseInt($('mv').value),e=[];
+ if(!n)e.push('Enter a file name.');if(!(s>0))e.push('Size must be greater than 0.');if(!(u>=1&&u<=100))e.push('Utility must be 1-100.');
+ if(e.length){$('fm').className='msg e';$('fm').textContent=e.join(' ');return}
+ files.push({id:nid++,name:n,type:(n.split('.').pop()||'').toUpperCase().slice(0,6),size:s,util:u,cat:$('mc').value});res=null;save();$('fm').className='msg';$('fm').textContent='Added.';$('mn').value=$('ms').value=$('mv').value='';render()};
+const upd=(id,k,v)=>{const f=files.find(x=>x.id==id);f[k]=k=='util'?clamp(+v||1):v;res=null;save();render()};
+const del=id=>{files=files.filter(f=>f.id!=id);res=null;save();render()};
+$('ca').onclick=()=>{if(confirm('Remove all files from the list? Your real files are not touched.')){files=[];res=null;save();render()}};
+
+/* rendering */
+const status=f=>!res?'Pending':res.sel.has(f.id)?'Selected':'Rejected';
+function driveBar(el,r){const S=files.filter(f=>r.sel.has(f.id));el.innerHTML=S.map(f=>`<i title="${esc(f.name)} · ${fmt(f.size)}" style="width:${f.size/r.cap*100}%;background:${COL[f.cat]}"></i>`).join('')}
+function statsHtml(r){const S=r.sel.size;return[['Capacity',fmt(r.cap)],['Used',fmt(r.used)+' ('+(r.used/r.cap*100).toFixed(1)+'%)'],['Remaining',fmt(r.cap-r.used)],['Selected',S+' of '+r.n],['Rejected',r.n-S],['Total utility',r.util],['Time',r.ms.toFixed(2)+' ms']].map(a=>`<div><small>${a[0]}</small><b>${a[1]}</b></div>`).join('')}
+const listT=a=>a.length?`<table><tr><th>File<th>Size<th>Utility<th>Category</tr>${a.map(f=>`<tr><td>${esc(f.name)}<td>${fmt(f.size)}<td>${f.util}<td>${esc(f.cat)}</tr>`).join('')}</table>`:'<div class="empty">Nothing here yet.</div>';
+function chart(id,cfg){if(charts[id])charts[id].destroy();Chart.defaults.color=getComputedStyle(document.documentElement).getPropertyValue('--mut');cfg.options={responsive:true,maintainAspectRatio:false,...cfg.options};charts[id]=new Chart($(id),cfg)}
+function render(){
+ if(res){driveBar($('drv'),res);$('st').innerHTML=statsHtml(res);const S=files.filter(f=>res.sel.has(f.id));$('keep').innerHTML=listT(S);$('leave').innerHTML=listT(files.filter(f=>!res.sel.has(f.id)));
+  const by={};S.forEach(f=>by[f.cat]=(by[f.cat]||0)+f.size);const k=Object.keys(by);
+  $('lg').innerHTML=k.map(c=>`<span style="--c:${COL[c]}">${c} ${fmt(by[c])}</span>`).join('');
+  chart('c1',{type:'doughnut',data:{labels:k,datasets:[{data:k.map(c=>by[c]),backgroundColor:k.map(c=>COL[c])}]},options:{plugins:{tooltip:{callbacks:{label:t=>t.label+': '+fmt(t.raw)}}}}})}
+ else{$('drv').innerHTML='';$('lg').innerHTML='';$('st').innerHTML=`<div><small>Files added</small><b>${files.length}</b></div><div><small>Total size</small><b>${fmt(files.reduce((s,f)=>s+f.size,0))}</b></div><div><small>Next step</small><b>${files.length?'Press Optimize':'Add your files'}</b></div>`;
+  $('keep').innerHTML=$('leave').innerHTML='<div class="empty">Run the optimizer to see results.</div>';if(charts.c1){charts.c1.destroy();delete charts.c1}}
+ const q=$('q').value.toLowerCase(),k=$('so').value,key={name:f=>f.name.toLowerCase(),size:f=>f.size,util:f=>f.util,ratio:f=>f.util/f.size}[k];
+ const L=files.filter(f=>f.name.toLowerCase().includes(q)&&(!$('qc').value||f.cat==$('qc').value)&&(!$('qs').value||status(f)==$('qs').value)).sort((a,b)=>k=='name'?(key(a)<key(b)?-1:1):key(b)-key(a));
+ $('tb').innerHTML=L.slice(0,400).map(f=>`<tr><td>${esc(f.name)}<td>${esc(f.type)}<td>${fmt(f.size)}<td><input type="number" min="1" max="100" value="${f.util}" onchange="upd(${f.id},'util',this.value)" aria-label="Utility"><td>${(f.util/(f.size/U.GB)).toFixed(2)}/GB
+ <td><select onchange="upd(${f.id},'cat',this.value)">${CATS.map(c=>`<option${c==f.cat?' selected':''}>${c}`).join('')}</select><td><span class="tag ${status(f)}">${status(f)}</span><td><button class="x" onclick="del(${f.id})" aria-label="Remove">×</button></tr>`).join('')||'<tr><td colspan=8 class="empty">No files yet. Drop some above, choose a folder, or load the sample.</tr>';
+ $('cnt').textContent=`${L.length} of ${files.length} files`+(L.length>400?' (showing first 400)':'');
+ $('ctb').innerHTML=cmp.map(r=>`<tr><td>${NAMES[r.alg]}<td>${r.util}<td>${fmt(r.used)}<td>${r.ms.toFixed(3)}<td>${CX[r.alg][0]}<td>${CX[r.alg][1]}</tr>`).join('');
+ $('hb').innerHTML=hist.map(h=>`<tr><td>${h.d}<td>${fmt(h.c)}<td>${h.n}<td>${h.a}<td>${h.u}<td>${fmt(h.us)}<td>${fmt(h.c-h.us)}<td>${h.ms.toFixed(3)}</tr>`).join('')||'<tr><td colspan=8 class="empty">No runs yet.</tr>'}
+function opts(id,first){const cur=$(id).value;$(id).innerHTML=(first?'<option value="">All categories':'')+CATS.map(c=>`<option>${c}`).join('');$(id).value=cur}
+opts('qc',1);opts('mc',0);
+['q','qc','qs','so'].forEach(i=>$(i).oninput=render);
+const total=()=>files.reduce((s,f)=>s+f.size,0),capNow=()=>parseFloat($('cap').value)*U[$('cu').value];
+function rec(r){hist.unshift({d:new Date().toLocaleString(),c:r.cap,n:r.n,a:NAMES[r.alg]+(r.mode!='max'?' ('+r.mode+')':''),u:r.util,us:r.used,ms:r.ms});hist=hist.slice(0,100);save()}
+$('run').onclick=()=>{const C=capNow(),alg=$('alg').value;$('oerr').textContent='';if(!(C>0)){$('oerr').textContent='Capacity must be greater than 0.';return}if(!can(alg))return;res=solve(alg,C,$('mode').value);rec(res);render()};
+$('half').onclick=()=>{const t=total()/2;if(!t){$('oerr').textContent='Add some files first.';return}const u=t>=U.GB?'GB':t>=U.MB?'MB':'KB';$('cu').value=u;$('cap').value=(t/U[u]).toFixed(2)};
+$('cr').onclick=()=>{const C=capNow();if(!(C>0)||!can('dp')){alert('Add files and set a capacity on the Drive tab first.');return}
+ cmp=['dp','greedy',...(files.length<=24?['bf']:[])].map(a=>{const r=solve(a,C);rec(r);return r});res=cmp[0];render()};
+$('bench').onclick=()=>{const ns=[4,6,8,10,12,14,16,18,20],T={dp:[],greedy:[],bf:[]},sv=files;
+ ns.forEach(n=>{files=Array.from({length:n},(_,i)=>({id:i,size:(1+Math.random()*9)*U.GB,util:1+Math.floor(Math.random()*100)}));for(const k in T)T[k].push(solve(k,30*U.GB).ms)});files=sv;
+ const cl={dp:'#ff5a1f',greedy:'#1f8f4e',bf:'#3b6fd8'};
+ chart('c2',{type:'line',data:{labels:ns,datasets:Object.keys(T).map(k=>({label:NAMES[k],data:T[k],borderColor:cl[k],tension:.2}))},options:{scales:{x:{title:{display:true,text:'Number of files (n)'}},y:{type:'logarithmic',title:{display:true,text:'Time (ms, log scale)'}}},plugins:{title:{display:true,text:'Execution time vs number of files'}}}})};
+function whatif(){if(!files.length){$('wv').textContent='';$('wd').innerHTML='';$('wst').innerHTML='<div class="empty">Add files first.</div>';return}
+ const alg=$('wa').value,p=+$('ws').value,C=total()*p/100;$('wv').textContent=p+'% of all files = '+fmt(C);
+ if(alg=='bf'&&files.length>24){$('wst').innerHTML='<div class="empty">Brute force is limited to 24 files.</div>';return}
+ const r=solve(alg,C);driveBar($('wd'),r);$('wst').innerHTML=statsHtml(r)}
+$('ws').oninput=$('wa').onchange=whatif;
+const out=(n,rows)=>{const t=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download=n;a.click()};
+const H=['File Name','Type','Size (GB)','Utility','Category','Status'],row=f=>[f.name,f.type,(f.size/U.GB).toFixed(4),f.util,f.cat,status(f)];
+$('e1').onclick=()=>out('all_files.csv',[H,...files.map(row)]);$('e2').onclick=()=>out('selected_files.csv',[H,...files.filter(f=>status(f)=='Selected').map(row)]);
+$('e3').onclick=()=>out('rejected_files.csv',[H,...files.filter(f=>status(f)=='Rejected').map(row)]);
+$('e4').onclick=()=>out('comparison.csv',[['Algorithm','Utility','Used (GB)','Time (ms)','Time','Space'],...cmp.map(r=>[NAMES[r.alg],r.util,(r.used/U.GB).toFixed(4),r.ms,CX[r.alg][0],CX[r.alg][1]])]);
+$('hc').onclick=()=>{hist=[];save();render()};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button,section').forEach(x=>x.classList.remove('on'));b.classList.add('on');$(b.dataset.v).classList.add('on');if(b.dataset.v=='wif')whatif();render()});
+render();
+</script></body></html>
